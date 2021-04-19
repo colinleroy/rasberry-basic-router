@@ -1,0 +1,25 @@
+#DHCP server information
+dhcp_range_start: 192.168.0.9
+dhcp_range_end: 192.168.0.100
+local_domain: lan
+
+#DNS upstream server
+upstream_dns:
+  - 1.1.1.1
+  - 8.8.8.8
+
+#List of name, IP address and MAC address of the devices that will have a
+#static DHCP lease
+ip_list:
+    - name: nas
+      address: 192.168.0.9
+      mac: 00:11:32:C0:FF:FF
+    - name: wifi-ap
+      address: 192.168.0.10
+      mac: 9C:C9:EB:FF:FF:FF
+    - name: laptop
+      address: 192.168.0.10
+      mac: F4:D1:08:FF:FF:FF
+    - name: printer
+      address: 192.168.0.20
+      mac: 40:23:43:FF:FF:FF

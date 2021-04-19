@@ -1,0 +1,5 @@
+---
+# Set the timezone
+
+- name: Set time zone information
+  command: "timedatectl set-timezone {{ timezone }}"

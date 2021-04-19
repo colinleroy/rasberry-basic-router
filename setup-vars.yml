@@ -1,0 +1,20 @@
+#Where to access SD card during first phase (where the SD card is on your computer)
+local_sd:
+  blockdevice: mmcblk0
+  bootpart: mmcblk0p1
+  rootpart: mmcblk0p2
+
+#Where to get the distribution
+distribution_url: https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/2021-03-04-raspios-buster-armhf-lite.zip
+
+#Your public key
+public_key: ~/.ssh/id_rsa.pub
+
+#Basic network information for eth0 (wired ethernet)
+host_ip: 192.168.0.1
+host_network: 192.168.0.0/24
+host_netmask: 255.255.255.0
+
+#Various settings
+hostname: router
+timezone: Europe/Paris

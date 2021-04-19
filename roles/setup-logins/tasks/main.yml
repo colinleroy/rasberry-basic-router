@@ -1,0 +1,92 @@
+---
+# This role does the following:
+# - Disables passwords for pi and root users
+# - Setup ssh to allow key-authenticated logins (including root)
+# - Enables sshd
+
+- name: mount partitions
+  include_role:
+    name: mount-sd-partitions
+
+- name: disable root password
+  lineinfile:
+    dest: "{{ root_mount }}/etc/shadow"
+    regexp: "^root"
+    line: "root:!!:17916::::::"
+  become: yes
+
+- name: disable pi password
+  lineinfile:
+    dest: "{{ root_mount }}/etc/shadow"
+    regexp: "^pi"
+    line: "pi:!!:17916::::::"
+  become: yes
+
+- name: allow root SSH login
+  lineinfile:
+    dest: "{{ root_mount }}/etc/ssh/sshd_config"
+    regexp: "PermitRootLogin"
+    line: "PermitRootLogin yes"
+  become: yes
+
+- name: disable password SSH login
+  lineinfile:
+    dest: "{{ root_mount }}/etc/ssh/sshd_config"
+    regexp: "PasswordAuthentication"
+    line: "PasswordAuthentication no"
+  become: yes
+
+- name: enable ssh
+  file:
+    path: "{{ boot_mount }}/ssh"
+    state: touch
+  become: yes
+
+- name: generate ssh host keys
+  shell: "yes y | ssh-keygen -f {{ root_mount }}/etc/ssh/ssh_host_{{ item }}_key -N '' -t {{ item }}"
+  become: yes
+  with_items:
+    - rsa
+    - dsa
+    - ecdsa
+  ignore_errors: yes
+
+- name: create root ssh dir
+  file:
+    path: "{{ root_mount }}/root/.ssh"
+    mode: 0700
+    state: directory
+    owner: root
+    group: root
+  become: yes
+  
+- name: copy root public key
+  copy:
+    src: "{{ public_key }}"
+    dest: "{{ root_mount }}/root/.ssh/authorized_keys"
+    mode: 0600
+    owner: root
+    group: root
+  become: yes
+
+- name: create pi ssh dir
+  file:
+    path: "{{ root_mount }}/home/pi/.ssh"
+    mode: 0700
+    state: directory
+    owner: 1000
+    group: 1000
+  become: yes
+
+- name: copy pi public key
+  copy:
+    src: "{{ public_key }}"
+    dest: "{{ root_mount }}/home/pi/.ssh/authorized_keys"
+    mode: 0600
+    owner: 1000
+    group: 1000
+  become: yes
+
+- name: umount partitions
+  include_role:
+    name: umount-sd-partitions

@@ -1,0 +1,50 @@
+---
+# This roles fetches a distribution from internet, and writes
+# it on the SD card
+
+- name: install required components
+  apt:
+    name: ["coreutils", "mount", "tar", "gzip", "sshpass"]
+    state: present
+  become: yes
+
+- name: create download directory
+  tempfile:
+    prefix: raspberry-image
+    state: directory
+  register: downloaddir
+
+- name: unarchive image
+  unarchive:
+    src: "{{ distribution_url }}"
+    dest: "{{ downloaddir.path }}"
+    remote_src: yes
+
+- name: find unzipped image
+  find:
+    paths: "{{ downloaddir.path }}"
+    patterns: "*.img"
+    recurse: no
+  register: find_res
+
+- name: umount partitions
+  include_role:
+    name: umount-sd-partitions
+
+- name: copy image
+  shell: "dd if={{ item.path }} of=/dev/{{ local_sd.blockdevice }} bs=4096"
+  become: yes
+  with_items: "{{ find_res.files }}"
+
+- name: sync
+  shell: "sync"
+  become: yes
+
+- name: remove download directory
+  file:
+    path: "{{ downloaddir.path }}"
+    state: absent
+
+- name: reinsert card
+  pause:
+    prompt: "Please reinsert card and wait for mount"

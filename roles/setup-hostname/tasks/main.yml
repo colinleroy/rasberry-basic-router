@@ -1,0 +1,14 @@
+---
+# Configure the Pi's hostname
+
+- name: hostname
+  hostname:
+    name: "{{ hostname }}"
+
+- name: add hosts to hostsfile
+  lineinfile:
+      path: /etc/hosts
+      regexp: "{{ item.name }}$"
+      line: "{{ item.ip }} {{ item.name }}"
+  with_items: 
+    - "{{ hostsfile }}"

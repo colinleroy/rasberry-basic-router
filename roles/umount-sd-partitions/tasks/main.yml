@@ -1,0 +1,18 @@
+---
+# Unmount SD partitions, if they're mounted
+
+- name: umount boot partition
+  shell: "umount /dev/{{ local_sd.bootpart }}"
+  become: yes
+  ignore_errors: yes
+
+- name: umount root partition
+  shell: "umount /dev/{{ local_sd.rootpart }}"
+  become: yes
+  ignore_errors: yes
+
+- name: remove tmpdir
+  file:
+    path: "{{ tmpmountdir.path }}"
+    state: absent
+  ignore_errors: yes

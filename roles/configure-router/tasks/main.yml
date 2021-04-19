@@ -1,0 +1,75 @@
+---
+# This role sets up a basic router
+- name: install packages
+  apt:
+      name: 
+        - dnsmasq
+        - iptables-persistent
+      state: present
+
+- name: setup eth1
+  template:
+      src: eth1.conf.j2
+      dest: "/etc/network/interfaces.d/eth1"
+
+- name: setup ip_forward
+  template:
+      src: sysctl-ip-forward.conf.j2
+      dest: "/etc/sysctl.d/99-ip-forward.conf"
+
+- name: save iptables rules
+  template:
+      src: iptables.v4.j2
+      dest: "/etc/iptables/rules.v4"
+      mode: 0644
+      owner: root
+      group: root
+
+- name: dhcpcd on usb0 and eth1
+  lineinfile:
+      path: "/etc/dhcpcd.conf"
+      regexp: "^allowinterfaces"
+      line: "allowinterfaces usb0 eth1"
+
+- name: dhclient fix domain search
+  lineinfile:
+      path: "/etc/dhcp/dhclient.conf"
+      regexp: '^supersede domain-name "'
+      line: 'supersede domain-name "{{ local_domain }}";'
+
+- name: dhclient fix domain server
+  lineinfile:
+      path: "/etc/dhcp/dhclient.conf"
+      regexp: '^supersede domain-name-servers '
+      line: 'supersede domain-name-servers 127.0.0.1;'
+
+- name: dnsmasq conf
+  template:
+      src: dnsmasq.conf.j2
+      dest: /etc/dnsmasq.conf
+
+- name: /etc/ethers
+  template:
+      src: ethers.j2
+      dest: /etc/ethers
+
+- name: /etc/hosts
+  template:
+      src: hosts.j2
+      dest: /etc/hosts
+
+- name: hostname
+  hostname:
+    name: "{{ hostname }}"
+
+- name: restart dnsmasq
+  service:
+      name: dnsmasq
+      state: restarted
+      enabled: yes
+
+- name: restart iptables
+  service:
+      name: netfilter-persistent
+      state: restarted
+      enabled: yes

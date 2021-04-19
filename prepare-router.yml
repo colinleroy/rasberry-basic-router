@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+
+  vars_files:
+    - setup-vars.yml
+    - router-vars.yml
+
+  roles: 
+    - { role: 'image-copy',          tags: ['image-copy'] }
+    - { role: 'setup-logins',        tags: ['logins'] }
+    - { role: 'setup-basic-network', tags: ['basic-network'] }

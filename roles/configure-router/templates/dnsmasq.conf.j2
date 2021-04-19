@@ -1,0 +1,13 @@
+interface=eth0
+bind-interfaces
+domain-needed
+bogus-priv
+dhcp-range={{ dhcp_range_start }},{{ dhcp_range_end }},12h
+dhcp-authoritative
+read-ethers
+local=/{{ local_domain }}/
+domain={{ local_domain }}
+expand-hosts
+{% for server in upstream_dns %}
+server={{ server }}
+{% endfor %}

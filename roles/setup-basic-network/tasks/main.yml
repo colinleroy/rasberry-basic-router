@@ -1,0 +1,20 @@
+---
+# Deploy a basic static eth0 configuration
+
+- name: mount partitions
+  include_role:
+    name: mount-sd-partitions
+
+- name: setup eth0
+  template:
+    src: eth0.conf.j2
+    dest: "{{ root_mount }}/etc/network/interfaces.d/eth0"
+  become: yes
+
+- name: umount partitions
+  include_role:
+    name: umount-sd-partitions
+
+- name: inform
+  debug:
+    msg: "Once Raspberry is booted, Run part two."

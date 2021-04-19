@@ -1,0 +1,9 @@
+---
+- hosts: router
+  vars_files:
+    - setup-vars.yml
+    - router-vars.yml
+
+  roles: 
+    - { role: 'setup-time',         tags: ['time'] }
+    - { role: 'configure-router',   tags: ['router'] }
